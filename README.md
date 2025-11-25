@@ -3,5 +3,5 @@
 Пример использования - https://github.com/adkostatt/Websocket-Server/blob/master/Example.cpp
 
 - [x] Windows support
-- [ ] Tsl support
+- [ ] Tls support
 - [ ] Linux support
