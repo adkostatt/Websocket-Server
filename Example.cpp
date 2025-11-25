@@ -28,6 +28,9 @@ int main(int argc, char* argv[])
             continue;
 
         FrameData frame = websocket.ReadFrame(10);
+        if (!frame.payload)
+            continue;
+
         websocket.SendFrame(frame.payload, frame.payloadLength);
 
         websocket.Close(StatusCode::AllowedInClose::NormalClosure);
