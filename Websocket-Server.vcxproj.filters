@@ -4,34 +4,35 @@
     <ClCompile Include="Http\Http.cpp">
       <Filter>Http</Filter>
     </ClCompile>
-    <ClCompile Include="Cryptography\Base64\Base64.c">
-      <Filter>Cryptography</Filter>
-    </ClCompile>
-    <ClCompile Include="Cryptography\SHA1\SHA1.c">
-      <Filter>Cryptography</Filter>
-    </ClCompile>
+    <ClCompile Include="Example.cpp" />
     <ClCompile Include="Websocket\ExtendedHeader.cpp">
-      <Filter>Websocket</Filter>
-    </ClCompile>
-    <ClCompile Include="Websocket\FrameData.cpp">
-      <Filter>Websocket</Filter>
+      <Filter>Websocket\Header</Filter>
     </ClCompile>
     <ClCompile Include="Websocket\Header.cpp">
-      <Filter>Websocket</Filter>
+      <Filter>Websocket\Header</Filter>
+    </ClCompile>
+    <ClCompile Include="Websocket\FrameData.cpp">
+      <Filter>Websocket\FrameData</Filter>
     </ClCompile>
     <ClCompile Include="Websocket\Websocket.cpp">
-      <Filter>Websocket</Filter>
+      <Filter>Websocket\Websocket</Filter>
     </ClCompile>
     <ClCompile Include="Socket\Client.cpp">
-      <Filter>Socket</Filter>
+      <Filter>Socket\Client</Filter>
     </ClCompile>
     <ClCompile Include="Socket\Server.cpp">
-      <Filter>Socket</Filter>
+      <Filter>Socket\Server</Filter>
     </ClCompile>
     <ClCompile Include="Socket\Socket.cpp">
-      <Filter>Socket</Filter>
+      <Filter>Socket\Socket</Filter>
     </ClCompile>
-    <ClCompile Include="Example.cpp" />
+    <ClCompile Include="Cryptography\Base64\Base64.c">
+      <Filter>Cryptography\Base64</Filter>
+    </ClCompile>
+    <ClCompile Include="Cryptography\SHA1\SHA1.c">
+      <Filter>Cryptography\SHA1</Filter>
+    </ClCompile>
+    <ClCompile Include="ExampleTls.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Http">
@@ -46,40 +47,64 @@
     <Filter Include="Socket">
       <UniqueIdentifier>{2f3d239f-8c95-45c3-a764-28e3db037acd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Websocket\Header">
+      <UniqueIdentifier>{d05235f5-1932-4ccf-aefc-02fbf76b33d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Websocket\FrameData">
+      <UniqueIdentifier>{b5321c23-a2c4-4e46-bdf4-ade3285ce4b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Websocket\Websocket">
+      <UniqueIdentifier>{419ae223-690e-42cd-947d-257faaf4cd29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket\Server">
+      <UniqueIdentifier>{b54f09f2-6c2a-449e-862b-63c99a59d0f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cryptography\Base64">
+      <UniqueIdentifier>{e8917127-f722-49ad-b642-1b1e2d02e9ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cryptography\SHA1">
+      <UniqueIdentifier>{c1a729d7-0463-4a00-90d4-d5f1eef4e71f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket\Client">
+      <UniqueIdentifier>{fdc6543c-18d6-4e87-8ae2-a3e566d011f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Socket\Socket">
+      <UniqueIdentifier>{e8df3294-c2b7-4120-a958-d10017a0b8c0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Http\Http.hpp">
       <Filter>Http</Filter>
     </ClInclude>
-    <ClInclude Include="Cryptography\Base64\Base64.h">
-      <Filter>Cryptography</Filter>
-    </ClInclude>
-    <ClInclude Include="Cryptography\SHA1\SHA1.h">
-      <Filter>Cryptography</Filter>
-    </ClInclude>
     <ClInclude Include="Websocket\Constants.hpp">
       <Filter>Websocket</Filter>
     </ClInclude>
     <ClInclude Include="Websocket\ExtendedHeader.hpp">
-      <Filter>Websocket</Filter>
-    </ClInclude>
-    <ClInclude Include="Websocket\FrameData.hpp">
-      <Filter>Websocket</Filter>
+      <Filter>Websocket\Header</Filter>
     </ClInclude>
     <ClInclude Include="Websocket\Header.hpp">
-      <Filter>Websocket</Filter>
+      <Filter>Websocket\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Websocket\FrameData.hpp">
+      <Filter>Websocket\FrameData</Filter>
     </ClInclude>
     <ClInclude Include="Websocket\Websocket.hpp">
-      <Filter>Websocket</Filter>
+      <Filter>Websocket\Websocket</Filter>
     </ClInclude>
     <ClInclude Include="Socket\Client.hpp">
-      <Filter>Socket</Filter>
+      <Filter>Socket\Client</Filter>
     </ClInclude>
     <ClInclude Include="Socket\Server.hpp">
-      <Filter>Socket</Filter>
+      <Filter>Socket\Server</Filter>
     </ClInclude>
     <ClInclude Include="Socket\Socket.hpp">
-      <Filter>Socket</Filter>
+      <Filter>Socket\Socket</Filter>
+    </ClInclude>
+    <ClInclude Include="Cryptography\Base64\Base64.h">
+      <Filter>Cryptography\Base64</Filter>
+    </ClInclude>
+    <ClInclude Include="Cryptography\SHA1\SHA1.h">
+      <Filter>Cryptography\SHA1</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

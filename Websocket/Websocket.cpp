@@ -62,7 +62,7 @@ const bool Websocket::Handshake(
 	std::copy_n("258EAFA5-E914-47DA-95CA-C5AB0DC85B11", 36, tmpAccept + 24);
 
 	char websocketAccept[29];
-	SHA1(websocketAccept, tmpAccept, 60); // Помоему оно капельку сломано
+	SHA1_(websocketAccept, tmpAccept, 60); // Помоему оно капельку сломано
 	Base64Encode((unsigned char*)tmpAccept, (const unsigned char*)websocketAccept, 20);
 	std::copy_n(tmpAccept, 28, websocketAccept);
 	websocketAccept[28] = '\0';

@@ -2,13 +2,13 @@
 #include <Socket/Client.hpp>
 #include <Websocket/Websocket.hpp>
 
-// Пример без Tls
-#ifndef WEBSOCKET_TLS_SUPPORT
+// Пример с Tls
+#ifdef WEBSOCKET_TLS_SUPPORT
 int main(int argc, char* argv[])
 {
     Socket::InitializeWSA(MAKEWORD(2, 2));
 
-    Server* server = Server::Bind("8081");
+    Server* server = Server::Bind("8081", "cert.pem", "key.pem");
     Websocket websocket;
     Client* client;
 
@@ -24,6 +24,12 @@ int main(int argc, char* argv[])
 
         if (!client)
             continue;
+
+        if (!client->TlsHandshake())
+        {
+            delete client;
+            continue;
+        }
 
         websocket.ChangeClient(client);
         if (!websocket.Handshake())
@@ -48,7 +54,7 @@ int main(int argc, char* argv[])
 
     delete server;
     Socket::CleanupWSA();
-    
+
     return 0;
 }
 #endif

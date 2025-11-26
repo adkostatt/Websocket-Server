@@ -1,6 +1,55 @@
 ﻿#include <Socket/Server.hpp>
 #include <Socket/Client.hpp>
 
+#ifdef WEBSOCKET_TLS_SUPPORT
+
+inline SSL_CTX* CreateContext(
+	const char* cert,
+	const char* key
+) noexcept
+{
+	SSL_CTX* ctx;
+	const SSL_METHOD* method = TLS_server_method();
+	ctx = SSL_CTX_new(method);
+	
+	if (!ctx)
+		return nullptr;
+
+	else if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0)
+		return nullptr;
+
+	else if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0)
+		return nullptr;
+
+	return ctx;
+}
+
+Server::Server(
+	SOCKET socket_,
+	const char* cert,
+	const char* key
+) noexcept : Socket(socket_)
+{
+	ctx = CreateContext(cert, key);
+}
+
+Server::Server(
+	const addrinfo* addressInfo,
+	const char* cert,
+	const char* key
+) noexcept : Socket(addressInfo)
+{
+	ctx = CreateContext(cert, key);
+}
+
+Server::~Server(
+
+) noexcept
+{
+	SSL_CTX_free(ctx);
+}
+
+#else
 Server::Server(
 	SOCKET socket_
 ) noexcept : Socket(socket_)
@@ -14,6 +63,7 @@ Server::Server(
 {
 
 }
+#endif
 
 const bool Server::Listen(
 	const INT connections
@@ -43,7 +93,11 @@ Client* Server::Accept(
 		errorCode = WSAGetLastError();
 		return nullptr;
 	}
+#ifdef WEBSOCKET_TLS_SUPPORT
+	return new Client(tempSocket, SSL_new(ctx));
+#else
 	return new Client(tempSocket);
+#endif
 }
 
 const bool Server::Bind(
@@ -62,7 +116,13 @@ const bool Server::Bind(
 }
 
 Server* Server::Bind(
+#ifdef WEBSOCKET_TLS_SUPPORT
+	const char* port,
+	const char* cert,
+	const char* key
+#else
 	const char* port
+#endif
 ) noexcept
 {
 	Server* server;
@@ -79,7 +139,11 @@ Server* Server::Bind(
 	if ((int64_t)result < 0)
 		return (Server*)result;
 
+#ifdef WEBSOCKET_TLS_SUPPORT
+	server = new Server(result, cert, key);
+#else
 	server = new Server(result);
+#endif
 	if (!server->Bind(result))
 	{
 		delete server;

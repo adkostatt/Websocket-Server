@@ -1,5 +1,47 @@
 ﻿#include <Socket/Client.hpp>
 
+#ifdef WEBSOCKET_TLS_SUPPORT
+#define SEND(payload, payloadLength) SSL_write(ssl, payload, payloadLength)
+#define READ() SSL_read(ssl, buffer, toReceive);
+#else
+#define SEND(payload, payloadLength) send(internalSocket, payload, payloadLength, NULL)
+#define READ() recv(internalSocket, buffer, toReceive, force ? MSG_WAITALL : NULL);
+#endif
+
+#ifdef WEBSOCKET_TLS_SUPPORT
+
+Client::Client(
+	const SOCKET socket_,
+	SSL* ssl_
+) noexcept : Socket(socket_), ssl(ssl_)
+{
+	SSL_set_fd(ssl, internalSocket);
+}
+
+Client::Client(
+	const addrinfo* addressInfo,
+	SSL* ssl_
+) noexcept : Socket(addressInfo), ssl(ssl_)
+{
+	SSL_set_fd(ssl, internalSocket);
+}
+
+Client::~Client(
+
+) noexcept
+{
+	SSL_shutdown(ssl);
+	SSL_free(ssl);
+}
+
+const bool Client::TlsHandshake(
+
+) const noexcept
+{
+	return SSL_accept(ssl) > 0;
+}
+
+#else
 Client::Client(
 	const SOCKET socket_
 ) noexcept : Socket(socket_)
@@ -13,6 +55,7 @@ Client::Client(
 {
 
 }
+#endif
 
 const bool Client::Send(
 	const char* payload,
@@ -25,7 +68,7 @@ const bool Client::Send(
 
 	if (!force)
 	{
-		iResult = send(internalSocket, payload, payloadLength, NULL);
+		iResult = SEND(payload, payloadLength);
 		if (iResult == SOCKET_ERROR)
 		{
 			errorCode = WSAGetLastError();
@@ -36,7 +79,7 @@ const bool Client::Send(
 	{
 		do
 		{
-			iResult = send(internalSocket, payload - sent, payloadLength - sent, NULL);
+			iResult = SEND(payload + sent, payloadLength - sent);
 			if (iResult == SOCKET_ERROR)
 			{
 				errorCode = WSAGetLastError();
@@ -58,7 +101,7 @@ const int Client::Receive(
 {
 	INT iResult;
 
-	iResult = recv(internalSocket, buffer, toReceive, force ? MSG_WAITALL : NULL);
+	iResult = READ();
 
 	if (iResult < 0)
 	{
@@ -74,6 +117,10 @@ const bool Client::Receivable(
 	const long microseconds
 ) noexcept
 {
+#ifdef WEBSOCKET_TLS_SUPPORT
+	if (SSL_has_pending(ssl))
+		return true;
+#endif
 	INT iResult;
 	const timeval timeout{ seconds, microseconds };
 	fd_set readFdSet;
@@ -81,7 +128,7 @@ const bool Client::Receivable(
 	FD_ZERO(&readFdSet);
 	FD_SET(internalSocket, &readFdSet);
 
-	iResult = select(0, &readFdSet, NULL, NULL, &timeout); // Возвращает <0 при ошибке,
+	iResult = select(0, &readFdSet, NULL, NULL, &timeout); // Возвращает >0 при ошибке,
 	// в противном случае возвращает количество сокетов из readFdSet, которые готовы быть прочитанными
 
 	if (iResult < 0)
@@ -108,6 +155,7 @@ const bool Client::Shutdown(
 	return true;
 }
 
+#ifndef WEBSOCKET_TLS_SUPPORT
 Client* Client::Connect(
 	const char* host,
 	const char* port
@@ -145,3 +193,4 @@ Client* Client::Connect(
 	Client::FreeAddressInfo((addrinfo*)ptr);
 	return new Client(tempSocket);
 }
+#endif

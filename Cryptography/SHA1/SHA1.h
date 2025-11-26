@@ -40,7 +40,7 @@ extern "C" {
         SHA1_CTX* context
     );
 
-    void SHA1(
+    void SHA1_(
         char* hash_out,
         const char* str,
         uint32_t len);

@@ -1,8 +1,35 @@
 ﻿#include <Socket/Socket.hpp>
+#ifdef WEBSOCKET_TLS_SUPPORT
+#include <openssl/ssl.h>
+#endif
 
 class Client : private Socket
 {
+#ifdef WEBSOCKET_TLS_SUPPORT
+private:
+	SSL* ssl;
+#endif
 public:
+#ifdef WEBSOCKET_TLS_SUPPORT
+	Client(
+		const SOCKET socket_,
+		SSL* ssl_
+	) noexcept;
+
+	Client(
+		const addrinfo* addressInfo,
+		SSL* ssl_
+	) noexcept;
+
+	~Client(
+
+	) noexcept;
+
+	const bool TlsHandshake(
+
+	) const noexcept;
+
+#else
 	Client(
 		const SOCKET socket_
 	) noexcept;
@@ -10,6 +37,8 @@ public:
 	Client(
 		const addrinfo* addressInfo
 	) noexcept;
+
+#endif
 
 	// Если force = true, то будут попытки отправлять данные, пока не будет отправленно payloadLength байт(или пока подключение не разорвут)
 	const bool Send(
@@ -35,8 +64,10 @@ public:
 		const int channel
 	) noexcept;
 
+#ifndef WEBSOCKET_TLS_SUPPORT
 	static Client* Connect(
 		const char* host,
 		const char* port
 	) noexcept;
+#endif
 };
