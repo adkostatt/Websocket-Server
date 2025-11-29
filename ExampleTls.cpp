@@ -6,7 +6,9 @@
 #ifdef WEBSOCKET_TLS_SUPPORT
 int main(int argc, char* argv[])
 {
+#ifdef _WIN32
     Socket::InitializeWSA(MAKEWORD(2, 2));
+#endif
 
     Server* server = Server::Bind("8081", "cert.pem", "key.pem");
     Websocket websocket;
@@ -53,7 +55,9 @@ int main(int argc, char* argv[])
     websocket.ChangeClient(nullptr);
 
     delete server;
+#ifdef _WIN32
     Socket::CleanupWSA();
+#endif
 
     return 0;
 }

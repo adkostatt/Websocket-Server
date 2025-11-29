@@ -42,11 +42,11 @@ const bool Websocket::Handshake(
 
 ) noexcept
 {
-	/*if (!client->Receivable(1))
+	if (!client->Receivable(1))
 	{
 		WS_DEBUG("Websocket::Handshake - timeout")
 		return false;
-	}*/
+	}
 
 	int received = client->Receive(buffer, sizeof(buffer) - 3);
 	Http parsedHttp(buffer, received);

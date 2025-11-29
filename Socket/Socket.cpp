@@ -3,9 +3,10 @@
 #ifdef _WIN32
 #include <ws2tcpip.h>
 #pragma comment (lib, "Ws2_32.lib")
-#endif
+
 #ifdef WEBSOCKET_TLS_SUPPORT
 #pragma comment (lib, "libssl.lib")
+#endif
 #endif
 
 Socket::Socket(
