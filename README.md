@@ -10,7 +10,7 @@
 # Цели:
 - [x] Windows support
 - [x] Tls support
-- [ ] Linux support
+- [x] Linux support
 
 
 # В проекте используется:
