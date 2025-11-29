@@ -95,7 +95,22 @@ void Websocket::Close(
 	const StatusCode::AllowedInClose statusCode
 ) noexcept
 {
-	// TODO: Сделать отправку close frame и тд
+	uint16_t reversedStatusCode = std::rotl((uint16_t)statusCode, 8);
+
+	SendFrame((char*)&reversedStatusCode, 2, Opcode::Close);
+	uint8_t tries = 0;
+
+	while (tries < 9)
+	{
+		FrameData frame = ReadFrame(1);
+		if (frame.payload and frame.opcode == Opcode::Close)
+		{
+			WS_DEBUG("Websocket::Close - status code " << std::rotl(*(uint16_t*)frame.payload, 8))
+			break;
+		}
+		tries++;
+	}
+	WS_DEBUG("Websocket::Close - timeout")
 }
 
 const bool Websocket::SendFrame(

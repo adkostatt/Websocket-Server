@@ -42,8 +42,9 @@ int main(int argc, char* argv[])
         }
 
         websocket.SendFrame(frame.payload, frame.payloadLength);
-
         websocket.Close(StatusCode::AllowedInClose::NormalClosure);
+
+        delete client;
     }
 
     websocket.ChangeClient(nullptr);
