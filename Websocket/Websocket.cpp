@@ -1,4 +1,4 @@
-﻿#include <WebSocket/Websocket.hpp>
+﻿#include <Websocket/Websocket.hpp>
 #include <Websocket/Header.hpp>
 #include <Websocket/ExtendedHeader.hpp>
 #include <Socket/Client.hpp>
@@ -6,6 +6,8 @@
 
 #include <Cryptography/SHA1.h>
 #include <Cryptography/Base64.h>
+
+#include <algorithm>
 
 Websocket::Websocket(
 	Client* client_
@@ -40,22 +42,34 @@ const bool Websocket::Handshake(
 
 ) noexcept
 {
-	if (!client->Receivable(1))
+	/*if (!client->Receivable(1))
+	{
+		WS_DEBUG("Websocket::Handshake - timeout")
 		return false;
+	}*/
 
 	int received = client->Receive(buffer, sizeof(buffer) - 3);
 	Http parsedHttp(buffer, received);
 
 	if (!parsedHttp.method)
+	{
+		WS_DEBUG("Websocket::Handshake - invalid http")
 		return false;
+	}
 
 	if (parsedHttp.headers.find("Sec-WebSocket-Key") == parsedHttp.headers.end())
+	{
+		WS_DEBUG("Websocket::Handshake - corrupted headers")
 		return false;
+	}
 
 	const char* websocketKey = parsedHttp.headers["Sec-WebSocket-Key"];
 
 	if (strlen(websocketKey) != 24)	// Согласно документации mdn это текст из 16 байт, который закодирован в base64(что всегда будет текстом длинной 24 байт)
+	{
+		WS_DEBUG("Websocket::Handshake - invalid Sec-WebSocket-Key " << websocketKey)
 		return false;
+	}
 
 	char tmpAccept[60];
 	std::copy_n(websocketKey, 24, tmpAccept);
@@ -70,7 +84,7 @@ const bool Websocket::Handshake(
 	std::copy_n("HTTP/1.1 101 Switching Protocols\r\n", 34, buffer);
 	const char* names[]{"Upgrade", "Connection", "Sec-WebSocket-Accept"};
 	const char* values[]{"websocket", "Upgrade", websocketAccept};
-	Headers headers{ names, values, _countof(names) };
+	Headers headers{ names, values, 3 };
 
 	received = Http::CreateHttp(buffer, &headers);
 
@@ -99,7 +113,10 @@ const bool Websocket::SendFrame(
 	bool sent = client->Send((char*)&header, sizeof(Header));
 
 	if (!sent)
+	{
+		WS_DEBUG("Websocket::SendFrame - fail")
 		return false;
+	}
 
 	const uint8_t length = header.GetLength();
 	switch (length)
@@ -112,7 +129,10 @@ const bool Websocket::SendFrame(
 		break;
 	}
 	if (!sent)
+	{
+		WS_DEBUG("Websocket::SendFrame - fail")
 		return false;
+	}
 
 	if (masked)
 	{
@@ -120,7 +140,10 @@ const bool Websocket::SendFrame(
 
 		sent = client->Send(maskedArray, sizeof(int32_t));
 		if (!sent)
+		{
+			WS_DEBUG("Websocket::SendFrame - fail")
 			return false;
+		}
 
 		for (int i = 0; i < payloadLength; i++)
 			payload[i] ^= maskedArray[i % 4];
@@ -137,12 +160,18 @@ FrameData Websocket::ReadFrame(
 	int received;
 
 	if (!client->Receivable(seconds, microseconds))
+	{
+		WS_DEBUG("Websocket::ReadFrame - timeout")
 		return { 0, 0, nullptr };
+	}
 
 	received = client->Receive(buffer, sizeof(Header));
 
 	if (received != sizeof(Header))
+	{
+		WS_DEBUG("Websocket::ReadFrame - corrupted headers")
 		return { 0, 0, nullptr };
+	}
 
 	Header* header = (Header*)buffer;
 	uint64_t toReceive = header->GetLength();
@@ -151,13 +180,19 @@ FrameData Websocket::ReadFrame(
 	int32_t maskedKey;
 
 	if (!client->Receivable(0, 500))
+	{
+		WS_DEBUG("Websocket::ReadFrame - timeout")
 		return { 0, 0, nullptr };
+	}
 
 	if (toReceive <= 125 and masked)
 	{
 		received = client->Receive((char*)&maskedKey, sizeof(int32_t));
 		if (received != sizeof(int32_t))
+		{
+			WS_DEBUG("Websocket::ReadFrame - corrupted maskedKey")
 			return { 0, 0, nullptr };
+		}
 	}
 	else if (toReceive == 126)
 	{
@@ -165,7 +200,10 @@ FrameData Websocket::ReadFrame(
 		{
 			received = client->Receive(buffer, sizeof(ExtendedHeader::EH16M));
 			if (received != sizeof(ExtendedHeader::EH16M))
+			{
+				WS_DEBUG("Websocket::ReadFrame - corrupted extended headers")
 				return { 0, 0, nullptr };
+			}
 
 			ExtendedHeader::EH16M* extendedHeader = (ExtendedHeader::EH16M*)buffer;
 			toReceive = extendedHeader->payloadLength;
@@ -175,7 +213,10 @@ FrameData Websocket::ReadFrame(
 		{
 			received = client->Receive((char*)toReceive, sizeof(uint16_t));
 			if (received != sizeof(ExtendedHeader::EH16))
+			{
+				WS_DEBUG("Websocket::ReadFrame - corrupted extended headers")
 				return { 0, 0, nullptr };
+			}
 		}
 	}
 	else if (toReceive == 127)
@@ -184,7 +225,10 @@ FrameData Websocket::ReadFrame(
 		{
 			received = client->Receive(buffer, sizeof(ExtendedHeader::EH64M));
 			if (received != sizeof(ExtendedHeader::EH64M))
+			{
+				WS_DEBUG("Websocket::ReadFrame - corrupted extended headers")
 				return { 0, 0, nullptr };
+			}
 
 			ExtendedHeader::EH64M* extendedHeader = (ExtendedHeader::EH64M*)buffer;
 			toReceive = extendedHeader->payloadLength;
@@ -194,21 +238,33 @@ FrameData Websocket::ReadFrame(
 		{
 			received = client->Receive((char*)toReceive, sizeof(uint64_t));
 			if (received != sizeof(ExtendedHeader::EH64))
+			{
+				WS_DEBUG("Websocket::ReadFrame - corrupted extended headers")
 				return { 0, 0, nullptr };
+			}
 		}
 	}
 	else
 	{
 		if (!client->Receivable(0, 500))
+		{
+			WS_DEBUG("Websocket::ReadFrame - timeout")
 			return { 0, 0, nullptr };
+		}
 	}
 
 	if (toReceive > sizeof(buffer))
+	{
+		WS_DEBUG("Websocket::ReadFrame - buffer overflow " << toReceive)
 		return { 0, 0, nullptr };
+	}
 
 	received = client->Receive(buffer, toReceive);
 	if (received != toReceive)
+	{
+		WS_DEBUG("Websocket::ReadFrame - corrupted headers")
 		return { 0, 0, nullptr };
+	}
 
 	if (masked)
 		return { opcode, toReceive, buffer, maskedKey };

@@ -13,13 +13,22 @@ inline SSL_CTX* CreateContext(
 	ctx = SSL_CTX_new(method);
 	
 	if (!ctx)
+	{
+		WS_DEBUG("CreateContext ctx is nullptr")
 		return nullptr;
+	}
 
 	else if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0)
+	{
+		WS_DEBUG("SSL_CTX_use_certificate_file - " << SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM))
 		return nullptr;
+	}
 
 	else if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0)
+	{
+		WS_DEBUG("SSL_CTX_use_PrivateKey_file - " << SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM))
 		return nullptr;
+	}
 
 	return ctx;
 }
@@ -75,6 +84,7 @@ const bool Server::Listen(
 	if (iResult == SOCKET_ERROR)
 	{
 		errorCode = WSAGetLastError();
+		WS_DEBUG("Server::Listen - " << errorCode)
 		return false;
 	}
 	return true;
@@ -91,6 +101,7 @@ Client* Server::Accept(
 	if (tempSocket == INVALID_SOCKET)
 	{
 		errorCode = WSAGetLastError();
+		WS_DEBUG("Server::Accept - " << errorCode)
 		return nullptr;
 	}
 #ifdef WEBSOCKET_TLS_SUPPORT
@@ -110,6 +121,7 @@ const bool Server::Bind(
 	if (iResult == SOCKET_ERROR)
 	{
 		errorCode = WSAGetLastError();
+		WS_DEBUG("Server::Bind - " << errorCode)
 		return false;
 	}
 	return true;
@@ -137,7 +149,10 @@ Server* Server::Bind(
 
 	result = Server::GetAddressInfo(&hints, port);
 	if ((int64_t)result < 0)
+	{
+		WS_DEBUG("Server::Bind - " << result)
 		return (Server*)result;
+	}
 
 #ifdef WEBSOCKET_TLS_SUPPORT
 	server = new Server(result, cert, key);

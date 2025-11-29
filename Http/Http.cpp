@@ -1,4 +1,5 @@
 ﻿#include <Http/Http.hpp>
+#include <algorithm>
 
 Http::Http(
 	char* data,

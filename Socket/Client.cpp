@@ -4,8 +4,8 @@
 #define SEND(payload, payloadLength) SSL_write(ssl, payload, payloadLength)
 #define READ() SSL_read(ssl, buffer, toReceive);
 #else
-#define SEND(payload, payloadLength) send(internalSocket, payload, payloadLength, NULL)
-#define READ() recv(internalSocket, buffer, toReceive, force ? MSG_WAITALL : NULL);
+#define SEND(payload, payloadLength) send(internalSocket, payload, payloadLength, 0)
+#define READ() recv(internalSocket, buffer, toReceive, force ? MSG_WAITALL : 0);
 #endif
 
 #ifdef WEBSOCKET_TLS_SUPPORT
@@ -72,6 +72,7 @@ const bool Client::Send(
 		if (iResult == SOCKET_ERROR)
 		{
 			errorCode = WSAGetLastError();
+			WS_DEBUG("Client::Send - " << errorCode)
 			return false;
 		}
 	}
@@ -83,6 +84,7 @@ const bool Client::Send(
 			if (iResult == SOCKET_ERROR)
 			{
 				errorCode = WSAGetLastError();
+				WS_DEBUG("Client::Send - " << errorCode)
 				return false;
 			}
 			sent += iResult;
@@ -106,6 +108,7 @@ const int Client::Receive(
 	if (iResult < 0)
 	{
 		errorCode = WSAGetLastError();
+		WS_DEBUG("Client::Receive - " << errorCode)
 		return 0;
 	}
 
@@ -122,18 +125,19 @@ const bool Client::Receivable(
 		return true;
 #endif
 	INT iResult;
-	const timeval timeout{ seconds, microseconds };
+	timeval timeout{ seconds, microseconds };
 	fd_set readFdSet;
 
 	FD_ZERO(&readFdSet);
 	FD_SET(internalSocket, &readFdSet);
 
-	iResult = select(0, &readFdSet, NULL, NULL, &timeout); // Возвращает >0 при ошибке,
+	iResult = select(internalSocket+1, &readFdSet, NULL, NULL, &timeout); // Возвращает >0 при ошибке,
 	// в противном случае возвращает количество сокетов из readFdSet, которые готовы быть прочитанными
 
 	if (iResult < 0)
 	{
 		errorCode = iResult;
+		WS_DEBUG("Client::Receivable - " << errorCode)
 		return false;
 	}
 
@@ -150,6 +154,7 @@ const bool Client::Shutdown(
 	if (iResult == SOCKET_ERROR)
 	{
 		errorCode = WSAGetLastError();
+		WS_DEBUG("Client::Shutdown - " << errorCode)
 		return false;
 	}
 	return true;
@@ -184,6 +189,7 @@ Client* Client::Connect(
 		iResult = connect(tempSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
 		if (iResult == SOCKET_ERROR)
 		{
+			WS_DEBUG("Client::Connect - " << iResult)
 			closesocket(tempSocket);
 			continue;
 		}

@@ -64,6 +64,22 @@
           "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
         }
       }
+    },
+    {
+      "name": "linux-release",
+      "displayName": "Linux Release",
+      "inherits": "linux-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-with-tls",
+      "displayName": "Linux Release With Tls",
+      "inherits": "linux-release",
+      "cacheVariables": {
+        "TLS_SUPPORT": true
+      }
     }
   ]
 }

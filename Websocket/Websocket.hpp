@@ -1,13 +1,10 @@
 ﻿#pragma once
-//#include <deque>
 #include <Websocket/FrameData.hpp>
 #include <Websocket/Constants.hpp>
 
 class Websocket
 {
 private:
-	//std::deque<FrameData> frames;
-
 	class Client* client;
 	char buffer[248];
 

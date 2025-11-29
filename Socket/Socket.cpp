@@ -1,7 +1,9 @@
 ﻿#include <Socket/Socket.hpp>
-#include <ws2tcpip.h>
 
+#ifdef _WIN32
+#include <ws2tcpip.h>
 #pragma comment (lib, "Ws2_32.lib")
+#endif
 #ifdef WEBSOCKET_TLS_SUPPORT
 #pragma comment (lib, "libssl.lib")
 #endif
@@ -18,7 +20,10 @@ Socket::Socket(
 {
 	internalSocket = socket(addressInfo->ai_family, addressInfo->ai_socktype, addressInfo->ai_protocol);
 	if (internalSocket == INVALID_SOCKET)
+	{
 		errorCode = WSAGetLastError();
+		WS_DEBUG("Socket::Socket - errorCode")
+	}
 }
 Socket::~Socket(
 
@@ -72,11 +77,13 @@ const addrinfo* Socket::GetAddressInfo(
 	{
 		if (result)
 			FreeAddressInfo(result);
+		WS_DEBUG("Socket::GetAddressInfo - " << iResult)
 		return (const addrinfo*)EncodeErrorCode(iResult);
 	}
 	return result;
 }
 
+#ifdef _WIN32
 const INT Socket::InitializeWSA(
 	const WORD version
 ) noexcept
@@ -91,3 +98,4 @@ void Socket::CleanupWSA(
 {
 	WSACleanup();
 }
+#endif
