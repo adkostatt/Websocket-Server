@@ -9,6 +9,12 @@
 
 #include <algorithm>
 
+#ifdef _WIN32
+#define rotl16 _rotl16
+#else
+#define rotl16 std::rotl
+#endif
+
 Websocket::Websocket(
 	Client* client_
 ) noexcept : client(client_), buffer()
@@ -95,7 +101,7 @@ void Websocket::Close(
 	const StatusCode::AllowedInClose statusCode
 ) noexcept
 {
-	uint16_t reversedStatusCode = std::rotl((uint16_t)statusCode, 8);
+	uint16_t reversedStatusCode = rotl16((uint16_t)statusCode, 8);
 
 	SendFrame((char*)&reversedStatusCode, 2, Opcode::Close);
 	uint8_t tries = 0;
@@ -105,8 +111,8 @@ void Websocket::Close(
 		FrameData frame = ReadFrame(1);
 		if (frame.payload and frame.opcode == Opcode::Close)
 		{
-			WS_DEBUG("Websocket::Close - status code " << std::rotl(*(uint16_t*)frame.payload, 8))
-			break;
+			WS_DEBUG("Websocket::Close - status code " << rotl16(*(uint16_t*)frame.payload, 8))
+				break;
 		}
 		tries++;
 	}
