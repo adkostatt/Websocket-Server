@@ -9,7 +9,7 @@ private:
 	//std::deque<FrameData> frames;
 
 	class Client* client;
-	char buffer[504];
+	char buffer[248];
 
 public:
 
@@ -47,7 +47,7 @@ public:
 	) noexcept;
 
 	FrameData ReadFrame(
-		const long seconds = -1,
-		const long microseconds = 0
+		const long seconds = 10l,
+		const long microseconds = 0l
 	) noexcept;
 };

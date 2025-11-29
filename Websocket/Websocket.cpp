@@ -136,9 +136,8 @@ FrameData Websocket::ReadFrame(
 {
 	int received;
 
-	if (seconds != -1)
-		if (!client->Receivable(seconds, microseconds))
-			return { 0, 0, nullptr };
+	if (!client->Receivable(seconds, microseconds))
+		return { 0, 0, nullptr };
 
 	received = client->Receive(buffer, sizeof(Header));
 

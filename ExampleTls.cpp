@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        FrameData frame = websocket.ReadFrame(10);
+        FrameData frame = websocket.ReadFrame(10l);
         if (!frame.payload)
         {
             delete client;

@@ -56,8 +56,8 @@ public:
 
 	// Возможно стоит переименовать
 	const bool Receivable(
-		const long seconds = 0,
-		const long microseconds = 0
+		const long seconds = 0l,
+		const long microseconds = 0l
 	) noexcept;
 
 	const bool Shutdown(
