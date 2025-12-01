@@ -53,10 +53,10 @@ Http::Http(
 		return;
 	}
 
+	bool terminated = true;
+	char* lastName = nullptr;
 	for (int i = headersStart; i < dataLength; i++)
 	{
-		static bool terminated = true;
-		static char* lastName = 0;
 		const char& dataChar = data[i];
 
 		if (terminated)
@@ -67,12 +67,9 @@ Http::Http(
 
 		if (dataChar == ':' and data[i + 1] == ' ')
 		{
-			if (data[i + 1] == ' ')
-			{
-				(char&)dataChar = '\0';
+			(char&)dataChar = '\0';
 
-				headers[lastName] = data + i + 2;
-			}
+			headers[lastName] = data + i + 2;
 		}
 
 		else if (dataChar == '\r' and data[i + 1] == '\n')
