@@ -53,10 +53,10 @@ Http::Http(
 		return;
 	}
 
+	bool terminated = true;
+	char* lastName = nullptr;
 	for (int i = headersStart; i < dataLength; i++)
 	{
-		bool terminated = true;
-		char* lastName = nullptr;
 		char& dataChar = data[i];
 
 		if (terminated)
