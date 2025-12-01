@@ -16,7 +16,7 @@ Http::Http(
 
 	for (int i = 0; i < dataLength; i++)
 	{
-		const char& dataChar = data[i];
+		char& dataChar = data[i];
 
 		if (dataChar == '\r' and data[i + 1] == '\n')
 		{
@@ -38,7 +38,7 @@ Http::Http(
 				return;
 			}
 
-			(char&)dataChar = '\0';
+			dataChar = '\0';
 			if (!method)
 			{
 				method = data;
@@ -53,11 +53,11 @@ Http::Http(
 		return;
 	}
 
-	bool terminated = true;
-	char* lastName = nullptr;
 	for (int i = headersStart; i < dataLength; i++)
 	{
-		const char& dataChar = data[i];
+		bool terminated = true;
+		char* lastName = nullptr;
+		char& dataChar = data[i];
 
 		if (terminated)
 		{
@@ -67,15 +67,14 @@ Http::Http(
 
 		if (dataChar == ':' and data[i + 1] == ' ')
 		{
-			(char&)dataChar = '\0';
-
+			dataChar = '\0';
 			headers[lastName] = data + i + 2;
 		}
 
 		else if (dataChar == '\r' and data[i + 1] == '\n')
 		{
 			terminated = true;
-			(char&)dataChar = '\0';
+			dataChar = '\0';
 			if (data[i + 2] == '\r' and data[i + 3] == '\n')
 			{
 				payloadStart = i + 4;
@@ -104,7 +103,8 @@ const int Http::CreateHttp(
 	for (;
 		buffer[offset + 1] != '\n' or buffer[offset] != '\r';
 		offset++)
-	{}
+	{
+	}
 	offset += 2;
 
 	for (int i = 0; i < headers->count; i++)
