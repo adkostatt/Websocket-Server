@@ -144,7 +144,7 @@ const int Http::CreateHttp(
 	const Headers* headers,
 	const char* payload,
 	const size_t payloadLength
-)
+) noexcept
 {
 	const int offset = CreateHttp(buffer, headers);
 
